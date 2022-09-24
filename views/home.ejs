@@ -12,5 +12,20 @@
     <h6>You have successfully signed in</h6>
 
 
+    <button id="logout-btn">Logout</button>
+
+
+
+    <script>
+        document.getElementById("logout-btn").addEventListener("click", ()=>{
+            if(confirm("Are you sure, you want to logout ??")){
+                fetch('/logout')
+                .then(data => { return data.json() })
+                .then(res => { location.reload(); })
+                .catch(err => { console.log(err) })
+
+            }
+        })
+    </script>
 </body>
 </html>

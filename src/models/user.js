@@ -1,10 +1,16 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 const userSchema = mongoose.Schema(
     {
         userid: {
-            type: String
+            type: String,
+            required: true
+        },
+        fullname: {
+            type: String,
+            required: true
         },
         phone: {
             type: String,
@@ -13,13 +19,35 @@ const userSchema = mongoose.Schema(
         password: {
             type: String,
             required: true
-        }
+        },
+        tokens: [
+            {
+                token: {
+                    type: String,
+                    required: true
+                }
+            }
+        ]
     }
 )
 
 
-userSchema.statics.checkLoginCredentials = async (email,pass)=> {
-    const registeredUser = await User.findOne({email : email});
+
+// Generate Auth tokens after every login of a user
+const JWT_SECRET = process.env.JWT_SECRET;
+userSchema.methods.generateAuthTokens = async function(){
+    const authenticatedUser = this;
+    const token = jwt.sign({_id: authenticatedUser._id.toString()}, JWT_SECRET, {expiresIn: "1 day"} );
+    
+    authenticatedUser.tokens = authenticatedUser.tokens.concat({token});
+    await authenticatedUser.save();
+
+    return token;
+}
+
+
+userSchema.statics.checkLoginCredentials = async (userid, pass)=> {
+    const registeredUser = await User.findOne({userid : userid});
     if(!registeredUser){
         throw new Error("Authentication Failed... User not registered");
     }
@@ -43,7 +71,6 @@ userSchema.pre("save", async function(next){
 
     next();
 })
-
 
 
 

@@ -3,6 +3,8 @@ const app = express();
 const bodyParser = require("body-parser");
 const router = new express.Router();
 const User = require("../models/user");
+const auth = require("../middleware/auth");
+
 
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -14,6 +16,7 @@ router.post("/users", (req, res)=>{
     const newUser = new User(req.body);
     newUser.save().then((result)=>{
         // res.send(result);
+        console.log(result);
         res.redirect("/loginPage");
     }).catch((err)=>{
         res.send(err);
@@ -80,6 +83,56 @@ router.delete("/users/:id", function (req, res) {
         res.send(err);
     })
 })
+
+// Login a user ======================================
+router.post("/users/login", async (req, res) => {
+    try {
+        console.log(req.body);
+        const authenticatedUser = await User.checkLoginCredentials(req.body.userid, req.body.password);
+        const token = await authenticatedUser.generateAuthTokens();
+
+        res.cookie("UBFC", token, {
+            expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+            httpOnly: true
+        })
+        console.log("Logged in");
+        res.redirect("/home");
+    }
+    catch (err) {
+        console.log(err);
+        console.log("Error.. login failed");
+        res.send("Error.... Login Failed");
+    }
+})
+
+// logout a user :
+router.get("/logout", auth, async (req, res) => {
+    try {
+        req.user.tokens = req.user.tokens.filter((currElement) => {
+            return currElement.token !== req.cookies.UBFC;
+        })
+        await req.user.save();
+        res.clearCookie("UBFC");
+        res.send({message: "Successfully Logged Out"});
+    }
+    catch (error) {
+        res.status(400).send(error);
+    }
+})
+
+//logout of all devices
+router.get("/logoutAll", auth, async (req, res) => {
+    try {
+        req.user.tokens = [];
+        await req.user.save();
+        res.clearCookie("UBFC");
+        res.redirect("/loginPage");
+    }
+    catch (error) {
+        res.status(400).send(err);
+    }
+})
+
 
 
 module.exports = router;

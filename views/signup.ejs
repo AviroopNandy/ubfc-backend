@@ -7,7 +7,7 @@
     <title>Sign up Page</title>
 </head>
 <body>
-    <form action="/users" method="post">
+    <form id="signup-form">
         <input type="text" placeholder="Enter your full name" name="fullname">
         <input type="text" placeholder="Enter your phone no." name="phone">
         <input type="password" placeholder="Enter your password" name="password">
@@ -16,5 +16,43 @@
     </form>
 
     <h4>Already have an account? <a href="/loginPage">Login</a> </h4>
+
+
+    <script>
+        document.getElementById("signup-form").addEventListener("submit", (e)=>{
+            e.preventDefault();
+            let name = e.target[0].value;
+            let phone = e.target[1].value;
+            let userid = phone;
+            let pass = e.target[2].value;
+            let cpass = e.target[3].value;
+            if(pass!==cpass){
+                console.log("pass & cpass doesn't match");
+                return;
+            }
+            let data = {
+                "userid": userid,
+                "fullname": name,
+                "phone": phone,
+                "password": pass
+            }
+            // console.log(data);
+
+            const Params = {
+                headers: {
+                    "content-type": "application/json; charset=UTF-8"
+                },
+                body: JSON.stringify(data),
+                method: "POST"
+            }
+            fetch('/users', Params)
+                .then(data => { return data.json() })
+                .then(res => { console.log(res) })
+                .catch(err => { "No err" })
+
+
+
+        })
+    </script>
 </body>
 </html>

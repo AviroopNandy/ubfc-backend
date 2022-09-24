@@ -7,12 +7,43 @@
     <title>Login Page</title>
 </head>
 <body>
-    <form action="/login" method="post">
-        <input type="text" placeholder="Enter your phone no." name="phone">
+    <form action="/users/login" method="post">
+        <input type="text" placeholder="Enter your phone no." name="userid">
         <input type="password" placeholder="Enter your password" name="password">
         <button type="submit">Submit</button>
     </form>
 
     <h4>Don't have an account? <a href="/signupPage">Sign Up</a> </h4>
+
+
+    <script>
+        // document.getElementById("login-form").addEventListener("submit", (e)=>{
+        //     e.preventDefault();
+        //     let userid = e.target[0].value;
+        //     let pass = e.target[1].value;
+
+        //     let data = {
+        //         "userid": userid,
+        //         "password": pass 
+        //     };
+
+        //     console.log(data);
+
+        //     const Params = {
+        //         headers: {
+        //             "content-type": "application/json"
+        //         },
+        //         body: JSON.stringify(data),
+        //         method: "POST"
+        //     }
+        //     fetch('/users/login', Params)
+        //         .then(data => { return data.json() })
+        //         .then(res => { console.log(res) })
+        //         .catch(err => { console.log(err) })
+
+        // })
+    </script>
+
+
 </body>
 </html>
