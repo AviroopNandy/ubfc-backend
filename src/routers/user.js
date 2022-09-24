@@ -17,7 +17,8 @@ router.post("/users", (req, res)=>{
     newUser.save().then((result)=>{
         // res.send(result);
         console.log(result);
-        res.redirect("/loginPage");
+        // res.redirect("/loginPage");
+        res.send(result);
     }).catch((err)=>{
         res.send(err);
     })
@@ -96,7 +97,8 @@ router.post("/users/login", async (req, res) => {
             httpOnly: true
         })
         console.log("Logged in");
-        res.redirect("/home");
+        // res.redirect("/home");
+        res.send({message: "Successfully signed in to the UBFC homepage"});
     }
     catch (err) {
         console.log(err);
