@@ -98,7 +98,7 @@ router.post("/users/login", async (req, res) => {
         })
         console.log("Logged in");
         // res.redirect("/home");
-        res.send({message: "Successfully signed in to the UBFC homepage"});
+        res.send(token);
     }
     catch (err) {
         console.log(err);
@@ -135,6 +135,10 @@ router.get("/logoutAll", auth, async (req, res) => {
     }
 })
 
+// read profile :
+router.get("/user/me", auth, async (req, res) => {
+    res.send(req.user);
+})
 
 
 module.exports = router;
