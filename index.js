@@ -9,6 +9,7 @@ const cookieParser = require("cookie-parser");
 const auth = require("./src/middleware/auth");
 const cors = require('cors');
 const crypto = require("crypto");
+const imageToBase64 = require('image-to-base64');
 
 
 const corsOptions ={
@@ -51,6 +52,22 @@ app.get("/", (req, res)=>{
 })
 app.get("/home", auth, (req, res)=>{
     res.render("home");
+})
+
+// image document convert to base64 -------------------------------
+app.get("/form", (req, res)=>{
+    res.render("form");
+})
+
+app.post("/document", (req,res)=>{
+    let imageUrl = req.body.imageUrl;
+    imageToBase64(imageUrl) // Image URL of cloudinary
+    .then((response)=>{
+        res.send(response);     // base64 encoded image data
+    })
+    .catch((error) => {
+        res.send(error);
+    })
 })
 
 // Encryption of document =======================================================
