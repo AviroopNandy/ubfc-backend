@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const router = new express.Router();
 const User = require("../models/user");
 const auth = require("../middleware/auth");
+const jwt = require("jsonwebtoken");
 
 
 
@@ -135,9 +136,37 @@ router.get("/logoutAll", auth, async (req, res) => {
     }
 })
 
-// read profile :
-router.get("/user/me", auth, async (req, res) => {
-    res.send(req.user);
+// // read profile :
+// router.get("/user/:id", async (req, res) => {
+//     const userId = req.params.id;
+//     User.find({_id: userId}).then((response)=>{
+//         if(!response){
+//             res.send({message: "User Not Found"});
+//         }
+//         res.send(response);
+//     }).catch((err)=>{
+//         res.send(err);
+//     })
+// })
+
+// find user id from token
+router.get("/tokens/:id", async (req, res)=>{
+    const tokenId = req.params.id;
+    const JWT_SECRET = process.env.JWT_SECRET;
+
+    try{
+        const decoded = jwt.verify(tokenId, JWT_SECRET);
+
+        const authUser = await User.findOne({_id: decoded._id, "tokens.token": tokenId});
+
+        if(!authUser){
+            throw new Error("Please Authenticate!... You are not logged in");
+        }
+        res.send(authUser._id);
+    }
+    catch(err){
+        res.status(403).send({message: "Session Expired"});
+    }
 })
 
 
