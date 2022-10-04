@@ -15,7 +15,8 @@ router.post("/customers", (req, res) => {
     const newCustomer = new Customer(req.body);
     newCustomer.save().then((result) => {
         console.log(result);
-        res.send({message: "New Customer created successfully"});
+        // res.send({message: "New Customer created successfully"});
+        res.send(result);
     }).catch((err) => {
         res.send(err);
     })

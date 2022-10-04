@@ -10,6 +10,9 @@ const auth = require("./src/middleware/auth");
 const cors = require('cors');
 const crypto = require("crypto");
 const imageToBase64 = require('image-to-base64');
+const joinImages = require("join-images").joinImages;
+const mergeImages = require("merge-base64");
+const sharp = require("sharp");
 
 
 const corsOptions ={
@@ -206,6 +209,35 @@ fetch(voterOcrURL, voterOcrParams)
     .catch(err => { console.log(err) })
 // -----------------------------------------------------------------------------
 */
+
+
+// Join aadhaar front and back ------------------------------------------------
+// so just create a post request with aadhaarFront url & aadhaarBack url in "/join" route, you will get merged aadhaar_front, aadhaar_back as response
+app.post("/join", async (req, res)=>{
+    const aadhaarFront = req.body.imageFront;
+    const aadhaarBack = req.body.imageBack;
+
+    let base64Image1 = ``;
+    let base64Image2 = ``;
+    imageToBase64(aadhaarFront) // Image URL of cloudinary
+    .then((response)=>{
+        base64Image1 = response;     // base64 encoded image data
+    })
+    imageToBase64(aadhaarBack) // Image URL of cloudinary
+    .then((response)=>{
+        base64Image2 = response;     // base64 encoded image data
+    })
+
+    setTimeout(() => {
+        const mergedImage = mergeImages([base64Image1, base64Image2], {direction: true}).then((response)=>{
+            // res.render("result", {RESULT: response});
+            res.send(response);
+        }).catch((err)=>{
+            res.send(err);
+        });
+    }, 2000);
+
+})
 
 app.use(userRouter);
 app.use(customerRouter);
