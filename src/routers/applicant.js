@@ -2,30 +2,28 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const router = new express.Router();
-const auth = require("../middleware/auth");
-const Customer = require("./../models/customer");
+const Applicant = require("./../models/applicant");
 
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 
-// Create a new Customer :
-router.post("/customers", (req, res) => {
-    const newCustomer = new Customer(req.body);
-    newCustomer.save().then((result) => {
+// Create a new Applicant :
+router.post("/applicants", (req, res) => {
+    const newApplicant = new Applicant(req.body);
+    newApplicant.save().then((result) => {
         console.log(result);
-        // res.send({message: "New Customer created successfully"});
         res.send(result);
     }).catch((err) => {
         res.send(err);
     })
 })
 
-// view all customers :
-router.get("/customers",  async (req,res)=>{
-    Customer.find({}).then((result) => {
-        console.log("Result :-> ");
+// view all applicants :
+router.get("/applicants",  async (req,res)=>{
+    Applicant.find({}).then((result) => {
+        console.log("Applicants :-> ");
         console.log(result);
         res.send(result);
     }).catch((err) => {
@@ -33,10 +31,10 @@ router.get("/customers",  async (req,res)=>{
     })
 })
 
-router.post("/existingCustomers",  async (req,res)=>{
+router.post("/existingApplicants",  async (req,res)=>{
     const {applicantPhone} = req.body;
-    Customer.find({applicantPhone: applicantPhone}).then((result) => {
-        console.log("Result :-> ");
+    Applicant.find({applicantPhone: applicantPhone}).then((result) => {
+        console.log("Existing Applicant :-> ");
         console.log(result);
         res.send(result);
     }).catch((err) => {
@@ -53,9 +51,9 @@ router.post("/existingCustomers",  async (req,res)=>{
 
 
 // Delete a particular customer :
-router.delete("/customers/:id", function (req, res) {
+router.delete("/applicants/:id", function (req, res) {
     var id = req.params.id;
-    Customer.deleteOne({ _id: id }).then((res) => {
+    Applicant.deleteOne({ _id: id }).then((res) => {
         res.send(result);
     }).catch((err) => {
         res.send(err);

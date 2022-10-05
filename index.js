@@ -5,14 +5,13 @@ require("./src/db/mongoose")
 const bodyParser = require("body-parser");
 const userRouter = require("./src/routers/user");
 const customerRouter = require("./src/routers/customer");
+const applicantRouter = require("./src/routers/applicant");
 const cookieParser = require("cookie-parser");
 const auth = require("./src/middleware/auth");
 const cors = require('cors');
 const crypto = require("crypto");
 const imageToBase64 = require('image-to-base64');
-const joinImages = require("join-images").joinImages;
 const mergeImages = require("merge-base64");
-const sharp = require("sharp");
 
 
 const corsOptions ={
@@ -241,5 +240,6 @@ app.post("/join", async (req, res)=>{
 
 app.use(userRouter);
 app.use(customerRouter);
+app.use(applicantRouter);
 
 app.listen(5000);

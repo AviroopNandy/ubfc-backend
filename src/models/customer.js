@@ -2,71 +2,32 @@ const mongoose = require("mongoose");
 
 const customerSchema = mongoose.Schema(
     {
-        applicantPhone : {
+        phone : {
             type: String,
             required: true
         },
-        coapplicantPhone : {
+        aadhaarFront : {
             type: String,
             required: true
         },
-        interestedProducts : [
-            {
-                type: String
-            }
-        ],
-        loanAmount : {
+        aadhaarBack : {
+            type: String,
+            required: true
+        },
+        aadhaarLinked : {
+            type: String,
+            required: true
+        },
+        secondaryID_type : {
+            type: String,
+            required: true
+        },
+        secondaryID : {
+            type: String,
+            required: true
+        },
+        creator : {
             type: String
-        },
-        businessType : {
-            type: String,
-            required: true
-        },
-        occupationExtra : {
-            type: String
-        },
-        noOfDependents : {
-            type: String
-        },
-        applicant_aadhaarFront : {
-            type: String,
-            required: true
-        },
-        applicant_aadhaarBack : {
-            type: String,
-            required: true
-        },
-        applicant_aadhaarLinked : {
-            type: String,
-            required: true
-        },
-        applicant_secondaryID_type : {
-            type: String,
-            required: true
-        },
-        applicant_secondaryID : {
-            type: String,
-            required: true
-        },
-        coapplicant_aadhaarFront : {
-            type: String,
-            required: true
-        },
-        coapplicant_aadhaarLinked : {
-            type: String,
-            required: true
-        },
-        coapplicant_aadhaarBack : {
-            type: String,
-            required: true
-        },
-        coapplicant_secondaryID_type : {
-            type: String,
-            required: true
-        },
-        coapplicant_secondaryID : {
-            type: String,
-            required: true
         }
     }
 );
