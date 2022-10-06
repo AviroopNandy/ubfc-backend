@@ -14,12 +14,26 @@ const imageToBase64 = require('image-to-base64');
 const mergeImages = require("merge-base64");
 
 
-const corsOptions ={
+const corsOptions = {
     origin:'http://localhost:3000', 
     credentials:true,            //access-control-allow-credentials:true
     optionSuccessStatus:200
 }
 app.use(cors(corsOptions));
+
+const corsOptions_digilocker = {
+    origin:'https://l78q9zougd.execute-api.ap-south-1.amazonaws.com/default/Digilocker_request', 
+    credentials:true,            //access-control-allow-credentials:true
+    optionSuccessStatus:200
+}
+app.use(cors(corsOptions_digilocker));
+
+const corsOptions_digilocker2 = {
+    origin:'https://main.d4313hpymcmxh.amplifyapp.com/digilocker?m=Issue%20in%20data', 
+    credentials:true,            //access-control-allow-credentials:true
+    optionSuccessStatus:200
+}
+app.use(cors(corsOptions_digilocker2));
 
 const corsOptions2 ={
     origin:'https://l78q9zougd.execute-api.ap-south-1.amazonaws.com/default/Digilocker_request', 
@@ -80,11 +94,10 @@ async function encryptData(data){
         let derived = await deriveKeyAndIv(secret_key ,password );
         const cipher = crypto.createCipheriv('aes-256-cbc', derived.key, derived.iv);
         let encrpted = cipher.update(data, 'utf16le', 'base64');
-        // encrpted = cipher;
         encrpted += cipher.final('base64');
 	    return encrpted;
     } catch (error) {
-        return "";
+        return error;
     }
 }
 async function deriveKeyAndIv(secret, hex_pwd) {
@@ -104,17 +117,27 @@ async function convertToHex(str) {
             }
         }
     } catch (error) {
+        console.log(error);
     }
     return hexArr;
 }
 
-app.get("/hi", (req, res)=>{
-    console.log("/hi called");
-    encryptData("https://voteridcard.org.in/wp-content/uploads/2015/06/aadhaar-card-850x1024.jpg").then((response)=>{
-        // console.log(response);
-        res.send(response);
-    });  
+app.get("/hi", async (req, res)=>{
+    let data = {
+        s: "ubfc",
+        k: "1DCV4E6767453Q876W3Q20DB655SW04S",
+        request_id: "asASjkT5H",
+        ip: "000.00.00.000",
+        ts: "20220620121212"
+    }
+    encryptData(JSON.stringify(data)).then((response)=>{
+        res.send({data: response});
+    }).catch((err)=>{
+        res.send(err);
+    });
+    
 })
+
 
 // ============================================================================
 /*
