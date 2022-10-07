@@ -6,11 +6,11 @@ const customerSchema = mongoose.Schema(
             type: String,
             required: true
         },
-        aadhaarFront : {
+        aadhaarFront : {    // it will be deleted
             type: String,
             required: true
         },
-        aadhaarBack : {
+        aadhaarBack : {     // it will be deleted
             type: String,
             required: true
         },
@@ -28,6 +28,29 @@ const customerSchema = mongoose.Schema(
         },
         creator : {
             type: String
+        },
+        dob : String,
+        fullname : String,
+        care_of : String,
+        gender : String,
+        avatar : String,
+        address : String,
+        pan_no : String,
+        driving_details: {
+            driving_license_no: String,
+            date_of_issue: String,
+            validity_nt: String,
+            validity_t: String,
+            class_of_vehicle: String,
+            address: String
+        },
+        voter_details: {
+            voter_id: String,
+            address: String
+        },
+        documents: {
+            aadhaar_url: String,
+            pan_url: String
         }
     }
 );

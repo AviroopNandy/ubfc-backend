@@ -8,11 +8,11 @@ const applicantSchema = mongoose.Schema(
         },
         coapplicantPhone : {
             type: String,
-            required: true
         },
         interestedProducts : [
             {
-                type: String
+                productName: String,
+                productAmount: String
             }
         ],
         businessType : {
@@ -27,7 +27,8 @@ const applicantSchema = mongoose.Schema(
         },
         creator : {
             type: String
-        }
+        },
+        status : String
     }
 );
 

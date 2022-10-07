@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const router = new express.Router();
-const auth = require("../middleware/auth");
+// const auth = require("../middleware/auth");
 const Customer = require("./../models/customer");
 
 
@@ -48,7 +48,29 @@ router.post("/existingCustomers",  async (req,res)=>{
 
 
 // update a particular customer :
+router.patch("/customers/:id", async function (req, res) {
+    const updates = Object.keys(req.body);
+    const allowedUpdates = [ "aadhaarFront", "aadhaarBack", "aadhaarLinked", "secondaryID_type", "secondaryID", "dob", "fullname", "care_of", "gender", "avatar", "address", "pan_no", "driving_details", "voter_details", "documents"];
+    const isValidOperation = updates.every((update) => allowedUpdates.includes(update));
 
+    if (!isValidOperation) {
+        return res.status(400).send({ error: "Invalid Updates!" });
+    }
+    try {
+        const updatedCustomer = await Customer.findById(req.params.id);
+        if (!updatedCustomer) {
+            res.send("Customer not found in database");
+        }
+
+        updates.forEach((update) => updatedCustomer[update] = req.body[update]);
+        await updatedCustomer.save();
+        res.send(updatedCustomer);
+    }
+    catch (err) {
+        res.status(400).send(err);
+    }
+
+})
 
 
 
