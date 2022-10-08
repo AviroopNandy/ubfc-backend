@@ -14,6 +14,7 @@ const imageToBase64 = require('image-to-base64');
 const mergeImages = require("merge-base64");
 
 
+app.use(cors({origin: ['http://localhost:5000', 'http://127.0.0.1:5000']}));
 const corsOptions = {
     origin: 'http://localhost:3000',
     credentials: true,            //access-control-allow-credentials:true
@@ -35,20 +36,43 @@ const corsOptions_digilocker2 = {
 }
 app.use(cors(corsOptions_digilocker2));
 
-const corsOptions2 = {
-    origin: 'https://l78q9zougd.execute-api.ap-south-1.amazonaws.com/default/Digilocker_request/',
+const corsOptions_panOCR = {
+    origin: 'https://mv0gthimo7.execute-api.ap-south-1.amazonaws.com/default/panocrservice',
     credentials: true,            //access-control-allow-credentials:true
     optionSuccessStatus: 200
 }
-app.use(cors(corsOptions2));
+app.use(cors(corsOptions_panOCR));
+
+// app.use(cors());
+
 
 app.all('*', function (req, response, next) {
     response.setHeader("Access-Control-Allow-Origin", "*");
+    // response.setHeader("Access-Control-Allow-Origin", "https://mv0gthimo7.execute-api.ap-south-1.amazonaws.com/default/panocrservice");
     response.setHeader("Access-Control-Allow-Credentials", "true");
     response.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
     response.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
+    // response.setHeader("Access-Control-Max-Age", "172800");
     next();
 })
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    next();
+});
+
+// exports.handler = async (event) => {
+//     const response = {
+//         statusCode: 200,
+//         headers: {
+//             "Access-Control-Allow-Headers" : "Content-Type",
+//             "Access-Control-Allow-Origin": "https://mv0gthimo7.execute-api.ap-south-1.amazonaws.com/default/panocrservice",
+//             "Access-Control-Allow-Methods": "OPTIONS,POST,GET"
+//         },
+//         body: JSON.stringify('Hello from Lambda!'),
+//     };
+//     return response;
+// };
+
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -69,6 +93,9 @@ app.get("/", (req, res) => {
 app.get("/home", auth, (req, res) => {
     res.render("home");
 })
+app.get("/test",  (req, res) => {
+    res.render("testOcr");
+})
 
 // image document convert to base64 -------------------------------
 app.get("/form", (req, res) => {
@@ -86,9 +113,9 @@ app.post("/document", (req, res) => {
         })
 })
 
-// Encryption of document =======================================================
-const secret_key = "jgfhP1W9kR5BTmQ3nEoYwy";
-const password = "6gKu7o5EeQb7SkM7v2!$MUf";
+// Encryption of document -----------------------------------------------------------------------
+const secret_key = "uB98XmWr8DJl6jXDEzEQ9y";
+const password = "ckEA0FnUTH4rtGv!5F@ARnf";
 async function encryptData(data) {
     try {
         let derived = await deriveKeyAndIv(secret_key, password);
@@ -122,30 +149,57 @@ async function convertToHex(str) {
     return hexArr;
 }
 
-app.get("/hi", async (req, res) => {
+// find the timeStamp
+async function GetTs(Date){
+    let d = Date.toLocaleString("en-GB", {
+        timeZone: "Asia/Kolkata"
+    });
+    let parts = d.split(',')[0].split('/');
+    let partsNext = d.split(',')[1].split(':');
+    return parts[2] + await twoDigits(parts[1]) + await twoDigits(parts[0])+await twoDigits(partsNext[0])  +await twoDigits(partsNext[1])  +await twoDigits(partsNext[2]);
+};
+async function twoDigits(d){
+    d = parseInt(d);
+    if (0 <= d && d < 10) return "0" + d.toString();
+    if (-10 < d && d < 0) return "-0" + (-1 * d).toString();
+    return d.toString();
+}
+
+// calling api ---------------------------------------------------------------------
+app.get("/digilocker", async (req, res) => {
     let data = {
         s: "ubfc",
         k: "1DCV4E6767453Q876W3Q20DB655SW04S",
         request_id: "asASjkT5H",
         ip: "000.00.00.000",
-        ts: "20220620121212"
+        ts: await GetTs(new Date())
     }
     encryptData(JSON.stringify(data)).then((response) => {
-        res.send({ data: response });
+        const URL = `https://l78q9zougd.execute-api.ap-south-1.amazonaws.com/default/Digilocker_request`;
+        res.redirect(`${URL}?s=ubfc&data=${response}`);
+
     }).catch((err) => {
         res.send(err);
     });
+});
 
+app.post("/testPan", (req, res)=>{
+    // console.log(req.body.panUrl);
+
+    imageToBase64(req.body.panUrl).then((response) => {     // Image URL of pan card
+        // console.log(response);     // base64 encoded image data
+        res.send({data: response});
+    }).catch((err)=>{
+        res.send({message: err});
+    })
 })
-
 
 // ============================================================================
 // :::::::::::::::::::::::::::::::::: OCRs ::::::::::::::::::::::::::::::::::::
-
 /*
 // PAN OCR --------------------------------------------------------------------
-// const panOcrURL = "https://mv0gthimo7.execute-api.ap-south-1.amazonaws.com/default/panocrservice";
-const panOcrURL = "https://thisispanOcrURL.com";
+const panOcrURL = "https://mv0gthimo7.execute-api.ap-south-1.amazonaws.com/default/panocrservice";
+// const panOcrURL = "https://thisispanOcrURL.com";
 let panData = "hello";    // in base64 byte array
 const panOcrParams = {
     headers: {

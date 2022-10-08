@@ -47,48 +47,19 @@
         //         .catch(err => { console.log(err) })
 
         // })
+        
 
         const digilockerBtn = document.getElementById("digilocker-btn");
         digilockerBtn.addEventListener("click", (req, res)=>{
 
-            fetch("/hi").then((response)=>{
+            fetch("/digilocker")
+            .then((response)=>{
                 return response.json();
             }).then((response)=>{
                 console.log(response.data);
-
-                // const URL = `https://l78q9zougd.execute-api.ap-south-1.amazonaws.com/default/Digilocker_request?s=ubfc&data=${response.data}`;
-
-
-                const URL = `https://l78q9zougd.execute-api.ap-south-1.amazonaws.com/default/Digilocker_request`;
-                const Params = {
-                    headers: {
-                        "content-type": "application/json"
-                    },
-                    body: {s: "ubfc", data: response.data},
-                    method: "POST"
-                }
-                fetch(URL, Params).then((response)=>{
-                    return response.json();
-                }).then((response)=>{
-                    console.log(response);
-                }).catch((err)=>{
-                    console.log(err);
-                });
-
-                // fetch(URL).then((response)=>{
-                //     return response.json();
-                // }).then((response)=>{
-                //     console.log(response);
-                // }).catch((err)=>{
-                //     console.log(err);
-                // })
-                
-                // location.href = URL;
-
             }).catch((err)=>{
                 console.log(err);
             })
-
         })
 
     </script>

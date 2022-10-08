@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test OCR</title>
+</head>
+
+<body>
+    <h3>Test OCR</h3>
+
+    <h4>Fetch Pan Information:</h4>
+    <form id="panForm">
+        <input type="url" name="panUrl" placeholder="Enter Pan URL">
+        <button type="submit">Send</button>
+    </form>
+
+
+    <script>
+        const panForm = document.getElementById("panForm");
+        panForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const panUrl = e.target[0].value;
+
+            fetch("/testPan", {
+                headers: {
+                    "content-type": "application/json",
+                },
+                body: JSON.stringify({
+                    panUrl: panUrl
+                }),
+                method: "POST"
+            }).then((res) => {
+                return res.json();
+            }).then((response) => {
+                // console.log(response.data);
+
+                const panData = response;
+                const panOcrURL = "https://mv0gthimo7.execute-api.ap-south-1.amazonaws.com/default/panocrservice";
+                const panOcrParams = {
+                    headers: {
+                        "content-type": "application/json",
+                        "x-api-key": "CWq7uhWC24517Svd51ZRx10gjlV9YohfitQ4ytee",
+                        "authorizationToken": "Y9K8mqTyY8sSgHy2"
+                    },
+                    body: JSON.stringify({
+                        Imagebyte: panData
+                    }),
+                    method: "POST"
+                }
+                fetch(panOcrURL, panOcrParams)
+                    .then(data => { return data.json() })
+                    .then(response => {
+                        console.log(response);  // printing the response of this panOcr Api
+                    }).catch(err => {
+                        console.log(err);
+                    })
+            })
+        })
+    </script>
+</body>
+
+</html>
