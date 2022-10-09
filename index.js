@@ -12,9 +12,10 @@ const cors = require('cors');
 const crypto = require("crypto");
 const imageToBase64 = require('image-to-base64');
 const mergeImages = require("merge-base64");
+const multer = require("multer");
+const AWS = require("aws-sdk");
+const {v4: uuid} = require("uuid");   // to generate random numbers
 
-
-app.use(cors({origin: ['http://localhost:5000', 'http://127.0.0.1:5000']}));
 const corsOptions = {
     origin: 'http://localhost:3000',
     credentials: true,            //access-control-allow-credentials:true
@@ -43,35 +44,14 @@ const corsOptions_panOCR = {
 }
 app.use(cors(corsOptions_panOCR));
 
-// app.use(cors());
-
 
 app.all('*', function (req, response, next) {
     response.setHeader("Access-Control-Allow-Origin", "*");
-    // response.setHeader("Access-Control-Allow-Origin", "https://mv0gthimo7.execute-api.ap-south-1.amazonaws.com/default/panocrservice");
     response.setHeader("Access-Control-Allow-Credentials", "true");
     response.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
     response.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
-    // response.setHeader("Access-Control-Max-Age", "172800");
     next();
 })
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    next();
-});
-
-// exports.handler = async (event) => {
-//     const response = {
-//         statusCode: 200,
-//         headers: {
-//             "Access-Control-Allow-Headers" : "Content-Type",
-//             "Access-Control-Allow-Origin": "https://mv0gthimo7.execute-api.ap-south-1.amazonaws.com/default/panocrservice",
-//             "Access-Control-Allow-Methods": "OPTIONS,POST,GET"
-//         },
-//         body: JSON.stringify('Hello from Lambda!'),
-//     };
-//     return response;
-// };
 
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -96,6 +76,56 @@ app.get("/home", auth, (req, res) => {
 app.get("/test",  (req, res) => {
     res.render("testOcr");
 })
+app.get("/aws", (req, res)=>{
+    res.render("aws-test");
+})
+
+const storage = multer.memoryStorage({
+    destination: function(req, file, callback){
+        callback(null, '');
+    }
+});
+const upload = multer({     // this is a middleware
+    limits: 1000000,
+    fileFilter(req,file,cb){
+        if( file.originalname.match(/\.(jpg|JPG|jpeg|JPEG|png|PNG)$/) ){
+            cb(undefined, true);
+        }
+        else{
+            cb(new Error("Please upload only jpg, jpeg or png files"));
+            cb(undefined, false);
+        }
+    },storage
+});
+
+// configuring aws bucket
+const s3 = new AWS.S3({
+    accessKeyId: process.env.ACCESS_KEY_ID,
+    secretAccessKey: process.env.SECRET_ACCESS_KEY
+});
+
+// here we are uploading document to AWS s3 bucket
+app.post("/uploadAws", upload.single("documentImage"), async (req,res)=>{
+    let fileName = req.file.originalname.split(".");
+    const file_mimeType = fileName[fileName.length-1];
+    const params = {
+        Bucket: process.env.BUCKET_NAME,
+        Key: `${uuid()}.${file_mimeType}`,  // changing the filename of the document
+        Body: req.file.buffer
+    }
+
+    s3.upload(params, (error, response)=>{
+        if(error){
+            res.status(500).send(error);
+        }
+        res.status(200).send({url: response.Location});
+    })
+},(error,req,res,next)=>{
+    console.log({error: error.message});
+    res.send({error: error.message});
+})
+// this "(error,req,res,next)" call signature tells express that the function is set up to handle any uncaught errors
+
 
 // image document convert to base64 -------------------------------
 app.get("/form", (req, res) => {
