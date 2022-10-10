@@ -7,13 +7,12 @@ const customerSchema = mongoose.Schema(
             required: true
         },
         aadhaarFront : {    // it will be deleted
-            type: String,
-            required: true
+            type: String
         },
         aadhaarBack : {     // it will be deleted
             type: String,
-            required: true
         },
+        aadhaarMerged: String,
         aadhaarLinked : {
             type: String,
             required: true

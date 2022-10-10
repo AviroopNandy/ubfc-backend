@@ -50,7 +50,7 @@ router.post("/existingCustomers",  async (req,res)=>{
 // update a particular customer :
 router.patch("/customers/:id", async function (req, res) {
     const updates = Object.keys(req.body);
-    const allowedUpdates = [ "aadhaarFront", "aadhaarBack", "aadhaarLinked", "secondaryID_type", "secondaryID", "dob", "fullname", "care_of", "gender", "avatar", "address", "pan_no", "driving_details", "voter_details", "documents"];
+    const allowedUpdates = [ "aadhaarFront", "aadhaarBack", "aadhaarMerged", "aadhaarLinked", "secondaryID_type", "secondaryID", "dob", "fullname", "care_of", "gender", "avatar", "address", "pan_no", "driving_details", "voter_details", "documents"];
     const isValidOperation = updates.every((update) => allowedUpdates.includes(update));
 
     if (!isValidOperation) {

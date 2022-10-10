@@ -15,6 +15,7 @@ const mergeImages = require("merge-base64");
 const multer = require("multer");
 const AWS = require("aws-sdk");
 const {v4: uuid} = require("uuid");   // to generate random numbers
+const request = require('request');
 
 const corsOptions = {
     origin: 'http://localhost:3000',
@@ -54,10 +55,13 @@ app.all('*', function (req, response, next) {
 })
 
 
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
+// app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '50mb'}));
 app.set("view engine", "ejs");
 app.use(cookieParser());
+app.use(express.json({limit: '50mb'}));
+app.use(express.urlencoded({limit: '50mb'}));
 
 
 app.get("/signupPage", (req, res) => {
@@ -80,6 +84,109 @@ app.get("/aws", (req, res)=>{
     res.render("aws-test");
 })
 
+// panOcr --------------------------------------------------------------------------------------------
+app.post("/panOcr", (req, res)=>{
+    let panFormData = "b'"+req.body.panData.data + "'";
+    let options = {
+        'method': 'POST',
+        'url': 'https://mv0gthimo7.execute-api.ap-south-1.amazonaws.com/default/panocrservice',
+        'headers': {
+            'x-api-key': 'CWq7uhWC24517Svd51ZRx10gjlV9YohfitQ4ytee',
+            'authorizationToken': 'Y9K8mqTyY8sSgHy2',
+            'Access-Control-Allow-Origin': '*'
+        },
+        formData: {
+            'Imagebyte': panFormData
+        }
+    };
+    request(options, function (error, response) {
+        if (error){
+            console.log(error);
+            res.send(error);
+        }
+        console.log(response.body);
+        res.send(response.body);
+    });
+
+})
+// aadhaarOcr --------------------------------------------------------------------------------------------
+app.post("/aadhaarOcr", (req, res)=>{
+    let aadhaarFormData = "b'"+req.body.aadhaarData.data + "'";
+    let options = {
+        'method': 'POST',
+        'url': 'https://pwkmxo0g2d.execute-api.ap-south-1.amazonaws.com/default/aadharocrservice',
+        'headers': {
+            'x-api-key': 'qnrDTEsg1p7AXXON0GAvz6z8XDIAMMiw2FLgCdYM',
+            'authorizationToken': 'zzaHo7HsRl5x9NMR',
+            'Access-Control-Allow-Origin': '*'
+        },
+        formData: {
+            'Imagebyte': aadhaarFormData
+        }
+    };
+    request(options, function (error, response) {
+        if (error){
+            console.log(error);
+            res.send(error);
+        }
+        console.log(response.body);
+        res.send(response.body);
+    });
+
+})
+// voterOcr --------------------------------------------------------------------------------------------
+app.post("/voterOcr", (req, res)=>{
+    let voterFormData = "b'"+req.body.voterData.data + "'";
+    let options = {
+        'method': 'POST',
+        'url': ' https://w9et7fvjeg.execute-api.ap-south-1.amazonaws.com/default/VoterId_Ocr_Service',
+        'headers': {
+            'x-api-key': '0wUkJbGlMl2jJiwa6g2322ceBvicUnEE5zF70Oqm',
+            'authorizationToken': '1c2j312ZOgLGJf4v',
+            'Access-Control-Allow-Origin': '*'
+        },
+        formData: {
+            'Imagebyte': voterFormData
+        }
+    };
+    request(options, function (error, response) {
+        if (error){
+            console.log(error);
+            res.send(error);
+        }
+        console.log(response.body);
+        res.send(response.body);
+    });
+
+})
+// drivingOcr --------------------------------------------------------------------------------------------
+app.post("/drivingOcr", (req, res)=>{
+    let drivingFormData = "b'"+req.body.drivingData.data + "'";
+    let options = {
+        'method': 'POST',
+        'url': 'https://0gpvsrcho2.execute-api.ap-south-1.amazonaws.com/default/DrivingLicenseService-API',
+        'headers': {
+            'x-api-key': 'gmVwHvdl2u3udNOtYC6eIFKciUUKFTP7usvxIS07',
+            'authorizationToken': 'vED0Abl2N513c5PI',
+            'Access-Control-Allow-Origin': '*'
+        },
+        formData: {
+            'Imagebyte': drivingFormData
+        }
+    };
+    request(options, function (error, response) {
+        if (error){
+            console.log(error);
+            res.send(error);
+        }
+        console.log(response.body);
+        res.send(response.body);
+    });
+})
+
+
+
+// AWS works -----------------------------------------------------------------------------------------
 const storage = multer.memoryStorage({
     destination: function(req, file, callback){
         callback(null, '');
@@ -125,6 +232,30 @@ app.post("/uploadAws", upload.single("documentImage"), async (req,res)=>{
     res.send({error: error.message});
 })
 // this "(error,req,res,next)" call signature tells express that the function is set up to handle any uncaught errors
+
+// here we are uploading base64 image to AWS S3 bucket
+app.post("/uploadBase64Aws", async (req, res)=>{
+    const base64String = req.body.base64String;
+    const base64Data = new Buffer.from(base64String.replace(/^data:image\/\w+;base64,/, ""), 'base64');
+    const type = base64String.split(';')[0].split('/')[1];
+
+    const params = {
+        Bucket: process.env.BUCKET_NAME,
+        Key: `${uuid()}.${type}`, // type is not required
+        Body: base64Data,
+        ContentEncoding: 'base64', // required
+        ContentType: `image/${type}` // required. Notice the back ticks
+    }
+    s3.upload(params, (error, response)=>{
+        if(error){
+            res.status(500).send(error);
+        }
+        res.status(200).send({url: response.Location});
+    });
+},(error,req,res,next)=>{
+    console.log({error: error.message});
+    res.send({error: error.message});
+})
 
 
 // image document convert to base64 -------------------------------
@@ -213,10 +344,8 @@ app.get("/digilocker", async (req, res) => {
     });
 });
 
-app.post("/testPan", (req, res)=>{
-    // console.log(req.body.panUrl);
-
-    imageToBase64(req.body.panUrl).then((response) => {     // Image URL of pan card
+app.post("/encodeBase64", (req, res)=>{
+    imageToBase64(req.body.url).then((response) => {     // Image URL of pan card
         // console.log(response);     // base64 encoded image data
         res.send({data: response});
     }).catch((err)=>{

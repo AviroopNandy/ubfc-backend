@@ -24,40 +24,19 @@
             e.preventDefault();
             const panUrl = e.target[0].value;
 
-            fetch("/testPan", {
-                headers: {
-                    "content-type": "application/json",
-                },
-                body: JSON.stringify({
-                    panUrl: panUrl
-                }),
-                method: "POST"
-            }).then((res) => {
-                return res.json();
-            }).then((response) => {
-                // console.log(response.data);
-
-                const panData = response;
-                const panOcrURL = "https://mv0gthimo7.execute-api.ap-south-1.amazonaws.com/default/panocrservice";
-                const panOcrParams = {
-                    headers: {
-                        "content-type": "application/json",
-                        "x-api-key": "CWq7uhWC24517Svd51ZRx10gjlV9YohfitQ4ytee",
-                        "authorizationToken": "Y9K8mqTyY8sSgHy2"
-                    },
-                    body: JSON.stringify({
-                        Imagebyte: panData
-                    }),
-                    method: "POST"
-                }
-                fetch(panOcrURL, panOcrParams)
-                    .then(data => { return data.json() })
-                    .then(response => {
-                        console.log(response);  // printing the response of this panOcr Api
-                    }).catch(err => {
-                        console.log(err);
-                    })
-            })
+            // fetch("/testPan", {
+            //     headers: {
+            //         "content-type": "application/json",
+            //     },
+            //     body: JSON.stringify({
+            //         panUrl: panUrl
+            //     }),
+            //     method: "POST"
+            // }).then((res) => {
+            //     return res.json();
+            // }).then((response) => {
+                
+            // })
         })
     </script>
 </body>
