@@ -13,6 +13,7 @@ const customerSchema = mongoose.Schema(
             type: String,
         },
         aadhaarMerged: String,
+        aadhaarMasked: String,
         aadhaarLinked : {
             type: String,
             required: true
