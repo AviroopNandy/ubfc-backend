@@ -14,9 +14,12 @@ app.use(bodyParser.json());
 
 // create user ------------------------------------
 router.post("/users", (req, res)=>{
-    const newUser = new User(req.body);
+    const userBody = {
+        ...req.body,
+        isVerified: false
+    }
+    const newUser = new User(userBody);
     newUser.save().then((result)=>{
-        // res.send(result);
         console.log(result);
         // res.redirect("/loginPage");
         res.send(result);
@@ -54,7 +57,7 @@ router.get("/users/:id", (req, res) => {
 // update a particular user -------------------------
 router.patch("/users/:id", async function (req, res) {
     const updates = Object.keys(req.body);
-    const allowedUpdates = [ "password"];
+    const allowedUpdates = [ "password", "isVerified"];
     const isValidOperation = updates.every((update) => allowedUpdates.includes(update));
 
     if (!isValidOperation) {
@@ -89,7 +92,7 @@ router.delete("/users/:id", function (req, res) {
 // Login a user ======================================
 router.post("/users/login", async (req, res) => {
     try {
-        console.log(req.body);
+        // console.log(req.body);
         const authenticatedUser = await User.checkLoginCredentials(req.body.userid, req.body.password);
         const token = await authenticatedUser.generateAuthTokens();
 

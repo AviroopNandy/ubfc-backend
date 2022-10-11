@@ -27,7 +27,8 @@ const userSchema = mongoose.Schema(
                     required: true
                 }
             }
-        ]
+        ],
+        isVerified: Boolean
     }
 )
 
@@ -55,6 +56,9 @@ userSchema.statics.checkLoginCredentials = async (userid, pass)=> {
 
     if(!isMatch){
         throw new Error("Authentication failed... Password mismatched");
+    }
+    if(registeredUser.isVerified === false){
+        throw new Error("This account is not verified");
     }
 
     return registeredUser;
