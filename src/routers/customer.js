@@ -33,6 +33,23 @@ router.get("/customers",  async (req,res)=>{
     })
 })
 
+// read a particular user --------------------------
+router.get("/customers/:id", (req, res) => {
+    var id = req.params.id;
+    Customer.find({ _id: id }).then(function (result) {
+
+        if (!result) {
+            res.send("User not found");
+        }
+
+        res.send(result);
+    }).catch((err) => {
+        res.send(err);
+    })
+
+})
+
+
 router.post("/existingCustomers",  async (req,res)=>{
     const {applicantPhone} = req.body;
     Customer.find({applicantPhone: applicantPhone}).then((result) => {
