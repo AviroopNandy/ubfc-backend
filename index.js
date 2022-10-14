@@ -84,7 +84,7 @@ app.get("/aws", (req, res)=>{
     res.render("aws-test");
 })
 
-// panOcr --------------------------------------------------------------------------------------------
+// panOcr ----------------------------------------------------------------------------------
 app.post("/panOcr", (req, res)=>{
     let panFormData = "b'"+req.body.panData.data + "'";
     let options = {
@@ -104,12 +104,11 @@ app.post("/panOcr", (req, res)=>{
             console.log(error);
             res.send(error);
         }
-        console.log(response.body);
         res.send(response.body);
     });
 
 })
-// aadhaarOcr --------------------------------------------------------------------------------------------
+// aadhaarOcr -----------------------------------------------------------------------------
 app.post("/aadhaarOcr", (req, res)=>{
     let aadhaarFormData = "b'"+req.body.aadhaarData.data + "'";
     let options = {
@@ -129,12 +128,11 @@ app.post("/aadhaarOcr", (req, res)=>{
             console.log(error);
             res.send(error);
         }
-        console.log(response.body);
         res.send(response.body);
     });
 
 })
-// voterOcr --------------------------------------------------------------------------------------------
+// voterOcr -------------------------------------------------------------------------------
 app.post("/voterOcr", (req, res)=>{
     let voterFormData = "b'"+req.body.voterData.data + "'";
     let options = {
@@ -154,12 +152,10 @@ app.post("/voterOcr", (req, res)=>{
             console.log(error);
             res.send(error);
         }
-        console.log(response.body);
         res.send(response.body);
     });
-
 })
-// drivingOcr --------------------------------------------------------------------------------------------
+// drivingOcr ----------------------------------------------------------------------------------
 app.post("/drivingOcr", (req, res)=>{
     let drivingFormData = "b'"+req.body.drivingData.data + "'";
     let options = {
@@ -179,7 +175,6 @@ app.post("/drivingOcr", (req, res)=>{
             console.log(error);
             res.send(error);
         }
-        console.log(response.body);
         res.send(response.body);
     });
 })
@@ -237,7 +232,12 @@ app.post("/uploadAws", upload.single("documentImage"), async (req,res)=>{
 app.post("/uploadBase64Aws", async (req, res)=>{
     const base64String = req.body.base64String;
     const base64Data = new Buffer.from(base64String.replace(/^data:image\/\w+;base64,/, ""), 'base64');
-    const type = base64String.split(';')[0].split('/')[1];
+    let type = base64String.split(';')[0].split('/')[1];
+    console.log(type);
+    if(type==="9j"){
+        type = "jpeg";
+    }
+    console.log(type);
 
     const params = {
         Bucket: process.env.BUCKET_NAME,
@@ -246,6 +246,7 @@ app.post("/uploadBase64Aws", async (req, res)=>{
         ContentEncoding: 'base64', // required
         ContentType: `image/${type}` // required. Notice the back ticks
     }
+    console.log(params.Key);
     s3.upload(params, (error, response)=>{
         if(error){
             res.status(500).send(error);
