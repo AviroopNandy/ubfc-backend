@@ -6,6 +6,9 @@ const customerSchema = mongoose.Schema(
             type: String,
             required: true
         },
+        aadhaarNumber: {
+            type: String
+        },
         aadhaarFront : {    // it will be deleted
             type: String
         },
@@ -34,7 +37,12 @@ const customerSchema = mongoose.Schema(
         care_of : String,
         gender : String,
         avatar : String,
-        address : String,
+        address : {
+            city: String,
+            district: String,
+            pin: String,
+            state: String,
+        },
         pan_no : String,
         driving_details: {
             driving_license_no: String,
